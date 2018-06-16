@@ -8,23 +8,23 @@ namespace Lcm_Gcv
     {
         static void Main(string[] args)
         {
-            var nums = args.Select(v => int.Parse(v)).ToArray();
+            var nums = args.Select(v => int.Parse(v));
 
-            if (nums.Length < 2) { throw new Exception("要素数が2以上の条件に反しています。"); }
+            if (nums.Count() < 2) { throw new Exception("要素数が2以上の条件に反しています。"); }
             if (nums.Any(n => n < 1)) { throw new Exception("自然数(1以上)でない値が含まれています。"); }
-            if (nums.Length != nums.Distinct().Count()) { throw new Exception("要素内に重複する値が含まれています。"); }
+            if (nums.Count() != nums.Distinct().Count()) { throw new Exception("要素内に重複する値が含まれています。"); }
 
             //１．各要素の値ごとに、素因数分解
             var primeFactorizes = nums.Select(n => PrimeFactorize(n));
 
             #region ★debug1
             Console.WriteLine("debug1:start");
-            Enumerable.Range(0, nums.Length).ToList().ForEach(n =>
+            Enumerable.Range(0, nums.Count()).ToList().ForEach(n =>
             {
                 var pf = primeFactorizes.ElementAt(n);
                 var list = new List<string>();
                 pf.ToList().ForEach(kvp => list.Add($"{kvp.Key}^{kvp.Value}"));
-                Console.WriteLine($"{nums[n],2} = {string.Join(" × ", list)}");
+                Console.WriteLine($"{nums.ElementAt(n),2} = {string.Join(" × ", list)}");
             });
             Console.WriteLine("debug1:end");
             #endregion
@@ -45,16 +45,16 @@ namespace Lcm_Gcv
             Console.WriteLine("debug3:start");
             var lcmExpList = new List<string>();
             var gcdExpList = new List<string>();
-            foreach (var kvp in dic)
+            dic.ToList().ForEach(kvp =>
             {
-                lcmExpList.Add($"{kvp.Key,2}^{kvp.Value.Max()}");
-                gcdExpList.Add($"{kvp.Key,2}^{kvp.Value.Min()}");
-            }
+               lcmExpList.Add($"{kvp.Key,2}^{kvp.Value.Max()}");
+               gcdExpList.Add($"{kvp.Key,2}^{kvp.Value.Min()}");
+
+            });
             Console.WriteLine($"最小公倍数の計算式 {string.Join(" × ", lcmExpList)}");
             Console.WriteLine($"最大公約数の計算式 {string.Join(" × ", gcdExpList)}");
             Console.WriteLine("debug3:end");
             #endregion
-
 
             Console.WriteLine($"{string.Join(",", nums)}の最小公倍数は{result.Item1}");
             Console.WriteLine($"{string.Join(",", nums)}の最大公約数は{result.Item2}");
@@ -130,17 +130,17 @@ namespace Lcm_Gcv
         {
             var greatestCommonDivisor = 1;
             var leastCommonMultiple = 1;
-            foreach (var kv in dic)
+            dic.ToList().ForEach(kvp =>
             {
                 //素因数の指数乗を計算
-                var ar = kv.Value.Select(v => (int)Math.Pow(kv.Key, v)).ToArray();
+                var ar = kvp.Value.Select(v => (int)Math.Pow(kvp.Key, v)).ToArray();
 
                 //最大値の積→最小公倍数
                 leastCommonMultiple = leastCommonMultiple * (ar.Max());
 
                 //最小値の積→最大公約数
                 greatestCommonDivisor = greatestCommonDivisor * (ar.Min());
-            }
+            });
 
             //結果をタプルで返す
             return new Tuple<int, int>(leastCommonMultiple, greatestCommonDivisor);
