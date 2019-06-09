@@ -47,8 +47,8 @@ namespace Lcm_Gcv
             var gcdExpList = new List<string>();
             dic.ToList().ForEach(kvp =>
             {
-               lcmExpList.Add($"{kvp.Key,2}^{kvp.Value.Max()}");
-               gcdExpList.Add($"{kvp.Key,2}^{kvp.Value.Min()}");
+                lcmExpList.Add($"{kvp.Key,2}^{kvp.Value.Max()}");
+                gcdExpList.Add($"{kvp.Key,2}^{kvp.Value.Min()}");
 
             });
             Console.WriteLine($"最小公倍数の計算式 {string.Join(" × ", lcmExpList)}");
@@ -71,12 +71,10 @@ namespace Lcm_Gcv
         {
             var primeDic = new Dictionary<int, int>();
             var tmp = num;
+            var n = 2;
 
-            for (int n = 2; n <= num; n++)
+            while (tmp > 1)
             {
-                //除算の結果が1になったら終了
-                if (tmp == 1) { break; }
-
                 //指数の初期化
                 var i = 0;
                 while (tmp % n == 0)
@@ -87,6 +85,8 @@ namespace Lcm_Gcv
                 }
                 //指数決定
                 if (i > 0) { primeDic.Add(n, i); }
+
+                n++;
             }
             return primeDic;
         }
@@ -128,22 +128,23 @@ namespace Lcm_Gcv
         /// <returns></returns>
         private static Tuple<int, int> Calc(SortedDictionary<int, int[]> dic)
         {
-            var greatestCommonDivisor = 1;
-            var leastCommonMultiple = 1;
+            var gcd = 1;
+            var lcm = 1;
             dic.ToList().ForEach(kvp =>
             {
                 //素因数の指数乗を計算
-                var ar = kvp.Value.Select(v => (int)Math.Pow(kvp.Key, v)).ToArray();
+                var max_index = kvp.Value.Max();
+                var min_index = kvp.Value.Min();
 
                 //最大値の積→最小公倍数
-                leastCommonMultiple = leastCommonMultiple * (ar.Max());
+                lcm = lcm * (int)(Math.Pow(kvp.Key, max_index));
 
                 //最小値の積→最大公約数
-                greatestCommonDivisor = greatestCommonDivisor * (ar.Min());
+                gcd = gcd * (int)(Math.Pow(kvp.Key, min_index));
             });
 
             //結果をタプルで返す
-            return new Tuple<int, int>(leastCommonMultiple, greatestCommonDivisor);
+            return new Tuple<int, int>(lcm, gcd);
         }
     }
 }
